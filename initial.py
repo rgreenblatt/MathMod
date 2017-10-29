@@ -34,6 +34,7 @@ def metabolism(energies,organism,dt,grid):
     for i in range(grid):
         for k in range(grid):
             energies[i][k]-=energies[i][k]*organism.metrate*dt
+
 def neighfind(i,k,grid):
     if k==grid-1 and i==grid-1:
         neighbors=[(i-1,k),(i-1,k-1),(i,k-1)]
@@ -55,30 +56,23 @@ def neighfind(i,k,grid):
         neighbors=[(i-1,k),(i+1,k),(i,k+1),(i,k-1),(i+1,k+1),(i-1,k+1),(i+1,k-1),(i-1,k-1)]
     return neighbors
 
-def neighfind1(i,k,grid):
-    neighbors=[(i-1,k),(i+1,k),(i,k+1),(i,k-1),(i+1,k+1),(i-1,k+1),(i+1,k-1),(i-1,k-1)]
-    for point in neighbors:
-        if -1 or 100 in point:
-            neighbors.remove(point)
-    return neighbors
 def diffusion(organism,energies,dt,grid):
-    result=np.copy(energies)    
-    dc=organism.diffusion
-    for i in range(grid):
-        for k in range(grid):
-            neighbors=neighfind(i,k,grid)
-            diffused=dc*(energies[i][k])/8.0
-            for point in neighbors:
-                x=point[0]
-                y=point[1]
-                dc=organism.diffusion
-                result[x][y]+=diffused
-                result[i][k]-=diffused
-    return result
+    diffused = np.multiply(energies,organism.diffusion*dt/8.0)
+    energies = np.subtract(energies,diffused*8.0)
+    energies = np.add(energies,np.roll(diffused,1,axis=0))
+    energies = np.add(energies,np.roll(diffused,-1,axis=0))
+    energies = np.add(energies,np.roll(diffused,1,axis=1))
+    energies = np.add(energies,np.roll(diffused,-1,axis=1))
+    
+    energies = np.add(energies,np.roll(diffused,(1,1),axis=(0,1)))
+    energies = np.add(energies,np.roll(diffused,(1,-1),axis=(0,1)))
+    energies = np.add(energies,np.roll(diffused,(-1,1),axis=(0,1)))
+    energies = np.add(energies,np.roll(diffused,(-1,-1),axis=(0,1)))
+    return energies
+
 eosprey[0][0]=90
 
-print(neighfind1(0,0,grid))
-for time in range(0):
+for time in range(1000):
     temp=diffusion(osprey,eosprey,dt,grid)
     eosprey=temp
     print(temp[0][0])
