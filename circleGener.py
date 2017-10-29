@@ -23,4 +23,4 @@ def collect(x: int, y: int, sigma: float =3.0) -> List[Tuple[int, int]]:
 
     return neighborhood
 
-print(collect(-3, 9, 2)[3][0])
+
