@@ -26,8 +26,8 @@ def collect(x: int, y: int, sigma: float =3.0) -> List[Tuple[int, int]]:
 
 def gener(radius):
 	#returns convolutional kernal for a circle
-	x = np.linspace(-radius, 1, radius)
-	y = np.linspace(-radius, 1, radius)
+	x = np.linspace(-radius, radius, 2*radius+1)
+	y = np.linspace(-radius, radius, 2*radius+1)
 	xv, yv = np.meshgrid(x, y)
 	val = xv*xv+yv*yv
 	weight = 1-np.sqrt(val)/radius
