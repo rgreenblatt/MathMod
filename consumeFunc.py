@@ -64,6 +64,7 @@ def consume(ePreyOrig,ePredOrig,pOrganisms,grid,dt):
 	eaten = np.zeros((ePredOrig.shape))
 	for i in range(eaten.shape[0]):
 		eaten[i]=convolveSingle(norm_constants,pOrganisms[i,1],grid)
+	#norm_constants[1:]=norm_constants[1:]*norm_constants[0]
 	eaten = eaten * ePredOrig * pOrganisms[:,0]*dt
 	prey_survived = ePreyOrig - predator_sum*norm_constants
 	print(prey_survived)
