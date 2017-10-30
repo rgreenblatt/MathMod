@@ -6,7 +6,7 @@ import consumeFunc as consume
 import graphics
 from scipy import signal
 import circleGener as circ
-import generateScenario as gen
+
 dt=1
 tfin=10
 grid=100
