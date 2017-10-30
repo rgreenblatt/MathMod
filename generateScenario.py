@@ -3,7 +3,7 @@ import classes
 import random
 import graphics
 import numpy as np
-def setup(organism):
+def start(organism):
     out=[]
     total=np.zeros((100,100))
     for i in range(10):
@@ -14,5 +14,9 @@ def setup(organism):
         total=initial.diffusion(organism,total,initial.dt)
     return total
 
-hello=setup(classes.Organism(1))
-graphics.drawEnergy(hello)
+def setup():
+    orgs=[classes.Organism(k) for k in range(3)]
+    listy=[start(i) for i in orgs]
+    return tuple(listy)
+
+print(setup())
