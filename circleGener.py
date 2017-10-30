@@ -24,3 +24,13 @@ def collect(x: int, y: int, sigma: float =3.0) -> List[Tuple[int, int]]:
     return neighborhood
 
 
+def gener(radius):
+	#returns convolutional kernal for a circle
+	x = np.linspace(-radius, 1, radius)
+	y = np.linspace(-radius, 1, radius)
+	xv, yv = np.meshgrid(x, y)
+	val = xv*xv+yv*yv
+	weight = 1-np.sqrt(val)/radius
+	convolve = np.where(weight>0,weight,0)
+	return convolve
+
