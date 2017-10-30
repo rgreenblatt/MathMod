@@ -1,4 +1,5 @@
 import random
+import sys
 import numpy as np
 import classes
 import consumeFunc as consume
@@ -60,13 +61,18 @@ def diffusion(organism,energies,dt):
     return convolve
     
 
-eosprey[0][0]=90
+#eosprey[0][0]=90
 
-for time in range(10):
-	temp=eosprey+diffusion(osprey,eosprey,dt)
-	eosprey=temp
-	print(temp[0][0])
-	graphics.drawEnergy(temp, np.zeros(temp.shape), np.zeros(temp.shape))
+#out = []
+#for time in range(10):
+#	temp=eosprey+diffusion(osprey,eosprey,dt)
+#	eosprey=temp
+#	print(temp[0][0])
+#	out.append(temp)
+#	#graphics.drawEnergy(temp, np.zeros(temp.shape), np.zeros(temp.shape))
+#out = np.array(out)
+#graphics.animEnergy(out, np.zeros(out.shape),np.zeros(out.shape))
+
 #print(osprey.predation)
 #efficiency = .5
 #epredators = np.array([eosprey])
@@ -121,14 +127,15 @@ energyByTimeP = []
 energyByTimeH = []
 energyByTimeC = []
 
-#energies = np.array([eplant, efish, eosprey])
-#pollutions = np.array([pplant, pfish, posprey])
-#for i in range(100):
-#	energyByTimeP.append(energies[0])
-#	energyByTimeH.append(energies[1])
-#	energyByTimeC.append(energies[2])
-#	energies, pollutions = iter_model(np.array([plant, fish, osprey]), energies, pollutions, .2, 1, grid, .8, .6)
-#	print(i)	
-#graphics.animEnergy(np.array(energyByTimeP), np.array(energyByTimeH), np.array(energyByTimeC))
+energies = np.array([eplant, efish, eosprey])
+pollutions = np.array([pplant, pfish, posprey])
+for i in range(100):
+	energyByTimeP.append(energies[0])
+	energyByTimeH.append(energies[1])
+	energyByTimeC.append(energies[2])
+	energies, pollutions = iter_model(np.array([plant, fish, osprey]), energies, pollutions, .2, 1, grid, .8, .6)
+	print(i)
+	sys.stdout.flush()
+graphics.animEnergy(np.array(energyByTimeP), np.array(energyByTimeH), np.array(energyByTimeC))
 	
 
