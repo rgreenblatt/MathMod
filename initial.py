@@ -2,6 +2,8 @@ import random
 import numpy as np
 import classes
 import consumeFunc as consume
+from scipy import signal
+
 dt=1
 tfin=10
 grid=100
@@ -46,27 +48,19 @@ def neighfind(i,k,grid):
     return neighbors
 '''
 
-def diffusion(organism,energies,dt,grid):
-    diffused = np.multiply(energies,organism.diffusion*dt/8.0)
-    energies = np.subtract(energies,diffused*8.0)
-    energies = np.add(energies,np.roll(diffused,1,axis=0))
-    energies = np.add(energies,np.roll(diffused,-1,axis=0))
-    energies = np.add(energies,np.roll(diffused,1,axis=1))
-    energies = np.add(energies,np.roll(diffused,-1,axis=1))
-    
-    energies = np.add(energies,np.roll(diffused,(1,1),axis=(0,1)))
-    energies = np.add(energies,np.roll(diffused,(1,-1),axis=(0,1)))
-    energies = np.add(energies,np.roll(diffused,(-1,1),axis=(0,1)))
-    energies = np.add(energies,np.roll(diffused,(-1,-1),axis=(0,1)))
+def diffusion(organism,energies,dt):
+    kernel = [[1,1,1],[1,-8,1],[1,1,1]]
+    diffused = np.multiply(energies,organism.diffusion*dt/8.)
+    energies = energies + signal.convolve2d(diffused,kernel,boundary='wrap',mode='same')
     return energies
 
-#eosprey[0][0]=90
+eosprey[0][0]=90
 
-#for time in range(1000):
-#    temp=diffusion(osprey,eosprey,dt,grid)
-#    eosprey=temp
-#    print(temp[0][0])
-# print(osprey.predation)
+for time in range(20):
+    temp=diffusion(osprey,eosprey,dt)
+    eosprey=temp
+    print(temp[0][0])
+print(osprey.predation)
 effeciency = .5
 epredators = np.array([eosprey])
 for i in range(5):
