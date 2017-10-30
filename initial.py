@@ -61,16 +61,16 @@ def diffusion(organism,energies,dt):
     return convolve
     
 
-#eosprey[0][0]=90
+eosprey[0][0]=90
 
-#out = []
-#for time in range(10):
-#	temp=eosprey+diffusion(osprey,eosprey,dt)
-#	eosprey=temp
-#	print(temp[0][0])
-#	out.append(temp)
-#	#graphics.drawEnergy(temp, np.zeros(temp.shape), np.zeros(temp.shape))
-#out = np.array(out)
+out = []
+for time in range(10):
+	temp=eosprey+diffusion(osprey,eosprey,dt)
+	eosprey=temp
+	print(temp[0][0])
+	out.append(temp)
+	#graphics.drawEnergy(temp, np.zeros(temp.shape), np.zeros(temp.shape))
+eosprey = np.array(out[9])
 #graphics.animEnergy(out, np.zeros(out.shape),np.zeros(out.shape))
 
 #print(osprey.predation)
