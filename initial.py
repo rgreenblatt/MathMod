@@ -1,8 +1,11 @@
 import random
+import sys
 import numpy as np
 import classes
 import consumeFunc as consume
+import graphics
 from scipy import signal
+import circleGener as circ
 
 dt=1
 tfin=10
@@ -17,8 +20,8 @@ efish=np.full((grid,grid),1.0)
 eosprey=np.full((grid,grid),1.0)
 
 pplant=np.full((grid,grid),0.0)
-pfish=np.full((grid,grid),1.0)
-posprey=np.full((grid,grid),1.0)
+pfish=np.full((grid,grid),0.0)
+posprey=np.full((grid,grid),0.0)
 
 def metabolism(energies,organism,dt):
     return -energies*organism.metrate*dt
@@ -47,53 +50,92 @@ def neighfind(i,k,grid):
     return neighbors
 '''
 
+#def pollutionKill(organism, energies, pollutions, dt):
+	
 def diffusion(organism,energies,dt):
-    kernel = [[1,1,1],[1,-8,1],[1,1,1]]
-    diffused = np.multiply(energies,organism.diffusion*dt/8.)
-    return signal.convolve2d(diffused,kernel,boundary='wrap',mode='same')
+    #kernel = [[1,1,1],[1,-8,1],[1,1,1]]
+    kernel = circ.gener(8)
+    diffused = 0.9*energies*dt
+    norm_diffused = diffused/np.sum(kernel)
+    convolve = signal.convolve2d(norm_diffused,kernel,boundary='wrap',mode='same')-diffused
+    return convolve
     
 
 eosprey[0][0]=90
 
-for time in range(20):
-    temp=diffusion(osprey,eosprey,dt)
-    eosprey=temp
-    print(temp[0][0])
-print(osprey.predation)
-efficiency = .5
-epredators = np.array([eosprey])
-for i in range(5):
-	efish, epredators = consume.consume(efish, epredators, np.array([[osprey.predation, osprey.maxdist, efficiency]]), grid, .1)
+out = []
+for time in range(10):
+	temp=eosprey+diffusion(osprey,eosprey,dt)
+	eosprey=temp
+	print(temp[0][0])
+	out.append(temp)
+	#graphics.drawEnergy(temp, np.zeros(temp.shape), np.zeros(temp.shape))
+eosprey = np.array(out[9])
+#graphics.animEnergy(out, np.zeros(out.shape),np.zeros(out.shape))
+
+#print(osprey.predation)
+#efficiency = .5
+#epredators = np.array([eosprey])
+#for i in range(5):
+#	efish, epredators = consume.consume(efish, epredators, np.array([[osprey.predation, osprey.maxdist, efficiency]]), grid, .1)
 #print(efish)
 #print(eosprey)
+def reformatPandE(energy, pollution):
+	return np.swapaxes(np.array([energy, pollution]), 2, 0)
+
 
 #below function is under heavy development, should change substantially
-def iter_model(organisms, energies, pollutions, plant_ambient, dt, grid, efficiency):
-	x, plantAdd = consume.consume(np.full((grid,grid), plant_ambient), np.array([energies[0]]), np.array([[plant.predation, plant.maxdist, efficiency]]), grid, dt)
 	
-	plantRem, fishAdd = consume.consume(energies[0], np.array([energies[1]]), np.array([[fish.predation, fish.maxdist, efficiency]]), grid, dt)
+def iter_model(organisms, energies, pollutions, plant_ambient, dt, grid, efficiency, pTransfer):
+	epambient = reformatPandE(np.full((grid,grid), plant_ambient), np.zeros((grid, grid)))
+		
+	epplant = reformatPandE(energies[0], pollutions[0])
 
-	fishRem, ospreyAdd = consume.consume(energies[1], np.array([energies[2]]), np.array([[osprey.predation, ospprey.maxdist, efficiency]]), grid, dt)
 
-	diffusDeltas = np.array([])
+	x, y, plantAdd, z = consume.consume(epambient, np.array([epplant]), np.array([[plant.predation, plant.maxdist, efficiency, 0]]), grid, dt)
+	
+	
+	
+
+	plantRemE, plantRemP, fishAddE, fishAddP = consume.consume(reformatPandE(energies[0], pollutions[0]), np.array([reformatPandE(energies[1], pollutions[1])]), np.array([[fish.predation, fish.maxdist, efficiency, pTransfer]]), grid, dt)
+
+	fishRemE, fishRemP, ospreyAddE, ospreyAddP = consume.consume(reformatPandE(energies[1], pollutions[1]), np.array([reformatPandE(energies[2], pollutions[2])]), np.array([[osprey.predation, osprey.maxdist, efficiency, pTransfer]]), grid, dt)
+
+	diffusDeltas = []
 	for i in range(len(organisms)):
-		diffDeltas.append(diffusion(organisms[i], energies[i], dt))
+		diffusDeltas.append(diffusion(organisms[i], energies[i], dt))
 	
-	metDeltas = np.array([])
+	metDeltas = []
 	for i in range(len(organisms)):
 		metDeltas.append(metabolism(energies[i], organisms[i], dt))
 	
 	
 	
-	
-	energies[0] = energies[0] + plantAdd[0] + plantRem + diffusDeltas[0] + metDeltas[0]
-	energies[1] = energies[1] + fishAdd[0] + fishRem + diffusDeltas[1] + metDeltas[1]
-	energies[2] = energies[2] + ospreyAdd[0] + diffusDeltas[2] + metDeltas[2]
+	#print(plantAdd[0])	
+	energies[0] = energies[0] + plantAdd[0] + plantRemE + diffusDeltas[0] + metDeltas[0]
+	energies[1] = energies[1] + fishAddE[0] + fishRemE + diffusDeltas[1] + metDeltas[1]
+	energies[2] = energies[2] + ospreyAddE[0] + diffusDeltas[2] + metDeltas[2]
+
+	pollutions[0] = pollutions[0] + plantRemP
+	pollutions[1] = pollutions[1] + fishAddP[0] + fishRemP
+	pollutions[2] = pollutions[2] + ospreyAddP[0]
 
 	#TODO POLLUTION
-	return energies#, pollutions
+	return energies, pollutions
 
+energyByTimeP = []
+energyByTimeH = []
+energyByTimeC = []
 
-
+energies = np.array([eplant, efish, eosprey])
+pollutions = np.array([pplant, pfish, posprey])
+for i in range(100):
+	energyByTimeP.append(energies[0])
+	energyByTimeH.append(energies[1])
+	energyByTimeC.append(energies[2])
+	energies, pollutions = iter_model(np.array([plant, fish, osprey]), energies, pollutions, .2, 1, grid, .8, .6)
+	print(i)
+	sys.stdout.flush()
+graphics.animEnergy(np.array(energyByTimeP), np.array(energyByTimeH), np.array(energyByTimeC))
 	
 
