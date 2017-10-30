@@ -19,4 +19,4 @@ def setup():
     listy=[start(i) for i in orgs]
     return tuple(listy)
 
-print(setup())
+#print(setup())

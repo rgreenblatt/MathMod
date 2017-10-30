@@ -6,7 +6,7 @@ import consumeFunc as consume
 import graphics
 from scipy import signal
 import circleGener as circ
-
+import generateScenario as gen
 dt=1
 tfin=10
 grid=100
@@ -123,19 +123,6 @@ def iter_model(organisms, energies, pollutions, plant_ambient, dt, grid, efficie
 	#TODO POLLUTION
 	return energies, pollutions
 
-energyByTimeP = []
-energyByTimeH = []
-energyByTimeC = []
 
-energies = np.array([eplant, efish, eosprey])
-pollutions = np.array([pplant, pfish, posprey])
-for i in range(100):
-	energyByTimeP.append(energies[0])
-	energyByTimeH.append(energies[1])
-	energyByTimeC.append(energies[2])
-	energies, pollutions = iter_model(np.array([plant, fish, osprey]), energies, pollutions, .2, 1, grid, .8, .6)
-	print(i)
-	sys.stdout.flush()
-graphics.animEnergy(np.array(energyByTimeP), np.array(energyByTimeH), np.array(energyByTimeC))
 	
 
