@@ -10,8 +10,9 @@ def start(organism):
         out.append((random.randrange(100),random.randrange(100)))
     for point in out:
         total[point[0]][point[1]]=100
-    for i in range(30):
-        total=initial.diffusion(organism,total,initial.dt)
+    for i in range(3):
+        total=total+initial.diffusion(organism,total,initial.dt)
+        print(total)
     return total
 
 def setup():
@@ -19,4 +20,6 @@ def setup():
     listy=[start(i) for i in orgs]
     return tuple(listy)
 
-#print(setup())
+hello=setup()
+
+graphics.drawEnergy(hello[0],hello[1],hello[2])
