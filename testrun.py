@@ -17,9 +17,9 @@ efficiency = .8
 pTransfer = .6
 
 
-plant=classes.Organism(0, .9, .05, .5, 2, "plant", np.array([1]), True)
-fish=classes.Organism(1, 1, .4, .3, 10, "fish", np.array([2]), False)
-osprey=classes.Organism(2, .0, .4, .3, 20, "osprey", np.array([]), False)
+plant=classes.Organism(0, .9, .5, .5, 2, "plant", np.array([1]), True)
+fish=classes.Organism(1, .3, .7, .2, 10, "fish", np.array([2]), False)
+osprey=classes.Organism(2, .1, .7, .4, 10, "osprey", np.array([]), False)
 
 organisms = np.array([plant, fish, osprey])
 
