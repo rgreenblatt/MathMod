@@ -10,16 +10,16 @@ energyByTimeC = []
 
 
 grid = 100
-dt = 1
-tFin = 10
+dt = 2
+tFin = 100
 plant_ambient = .2
 efficiency = .8
 pTransfer = .6
 
 
-plant=classes.Organism(0, .9, .05, .2, 2, "plant", np.array([0]), True)
-fish=classes.Organism(1, .6, .2, .4, 4, "fish", np.array([1]), False)
-osprey=classes.Organism(2, .6, .4, .6, 6, "osprey", np.array([]), False)
+plant=classes.Organism(0, .9, .05, .5, 2, "plant", np.array([0]), True)
+fish=classes.Organism(1, .9, .2, .2, 10, "fish", np.array([1]), False)
+osprey=classes.Organism(2, .2, .4, .2, 50, "osprey", np.array([]), False)
 
 organisms = np.array([plant, fish, osprey])
 
@@ -38,7 +38,8 @@ for i in range(tFin):
 	energyByTimeC.append(energies[2])
 	energies, pollutions = initial.iter_model(organisms, energies, pollutions, dt, grid, efficiency, pTransfer, .5)
 	#graphics.drawEnergy(energies[0], energies[1], energies[2])
-	print(energies)
+	#print(energies)
+	graphics.drawEnergy(energies[0], energies[1], energies[2])
 	sys.stdout.flush()
 #print(energyByTimeH[0])
 sys.stdout.flush()

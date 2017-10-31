@@ -74,21 +74,37 @@ def iter_model(organisms, energies, pollutions, dt, grid, efficiency, pTransfer,
 			index =  organisms[i].consumed[j]
 			preds[j] = reformatPandE(energies[index], pollutions[index])		
 			predProps[j] = np.array([organisms[index].predation,organisms[index].maxdist, efficiency, pTransfer]) 
-		eatenRemE, eatenRemP, consumeAddE, consumeAddP = consume.consume(reformatPandE(energies[i], pollutions[i]), preds, predProps, grid, dt)
+		if(organisms[i].consumed.shape[0] !=0):
+			eatenRemE, eatenRemP, consumeAddE, consumeAddP = consume.consume(reformatPandE(energies[i], pollutions[i]), preds, predProps, grid, dt)
+		
+		#debug
+		
+
 		#giving predators energy and pollution
 		for j in range(organisms[i].consumed.shape[0]):
 			index =  organisms[i].consumed[j]
+			
 			change[index][0]+=consumeAddE[j]
 			change[index][1]+= consumeAddP[j]
 		
+		change[i][0] += eatenRemE
+		change[i][1] += eatenRemP	
 		
-		#Figure out pollution with below 2 functions
+		energies[i] += change[i][0]
+		pollutions[i] += change[i][1]
+
+		#TODO: Figure out pollution with below 2 functions
 		diffus = diffusion(organisms[i].diffusion, energies[i], dt)
 		met = metabolism(energies[i], organisms[i], dt)
-		
+			
+		graphics.drawEnergy(consumeAddE[0], np.zeros(consumeAddE[0].shape), np.zeros(consumeAddE[0].shape))
 
-		change[i][0] += eatenRemE+diffus+met
-		change[i][1] += eatenRemP
+		graphics.drawEnergy(np.zeros(eatenRemE.shape), -eatenRemE, np.zeros(eatenRemE.shape))
+
+		#TODO
+		change[i][0] += diffus+met
+		#change[i][1] += 
+		
 		if(organisms[i].ambient):
 			producers.append(i)
 	#handle multiple producers
@@ -100,12 +116,13 @@ def iter_model(organisms, energies, pollutions, dt, grid, efficiency, pTransfer,
 		prods[j] = reformatPandE(energies[index], pollutions[index])
 		prodProps[j] = np.array([organisms[index].predation,organisms[index].maxdist, efficiency, 0])
 		
-	x, y, producerAdd, z =  consume.consume(epambient, props, prodProps, grid, dt)
+	x, y, producerAdd, z =  consume.consume(epambient, prods, prodProps, grid, dt)
 
 	for j in range(len(producers)):
 		index = producers[j]
+		#TODO
 		change[index][0] += producerAdd[j]
-	
+	#graphics.drawDebug(np.array([change[0][0], change[1][0], change[2][0]], np.array(["plant", "fish", "osprey"])))
  	#add energies and pollutions
 	for i in range(energies.shape[0]):
 		energies[i] += change[i][0]
