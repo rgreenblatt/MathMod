@@ -67,7 +67,7 @@ def consume(ePreyOrig,ePredOrig, pOrganisms,grid,dt):
 	predator_sum = np.sum(predator_contribution,axis=0)
 	
 	#limits the amount eaten to the amount available
-	norm_constants = np.where(np.logical_and(predator_sum>ePreyOrig, predator_sum != 0),ePreyOrig/predator_sum,1)
+	norm_constants = np.where(np.logical_and(predator_sum<ePreyOrig, predator_sum != 0),ePreyOrig/predator_sum,1)
 
 	eaten = np.zeros((ePredOrig.shape))
 	for i in range(eaten.shape[0]):
