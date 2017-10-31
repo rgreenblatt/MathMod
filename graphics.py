@@ -1,7 +1,7 @@
 import matplotlib.pyplot as plt
 from matplotlib.animation import FuncAnimation
 import numpy as np
-def drawEnergy(producer, herbivore, carnivore):
+def drawEnergy(producer, herbivore, carnivore,name=None):
     colors = np.array([producer, herbivore, carnivore])
     colors = np.log(colors+1.)
     colors = np.swapaxes(colors, 0, 2)
@@ -9,7 +9,23 @@ def drawEnergy(producer, herbivore, carnivore):
     #plt.pcolor(producer, herbivore, carnivore)
     #plt.show()
     plt.imshow(colors)
+    fig = plt.gcf()
+    if name != None:
+        fig.canvas.set_window_title(name)
+    else:
+        fig.canvas.set_window_title('Energy Figure')
     plt.show()
+
+def drawDebug(data,name=None):
+	f, axarr = plt.subplots(data.shape[0])
+	for i in range(data.shape[0]):
+		colors = np.log(data[i] + 1.)
+		colors = np.swapaxes(colors, 0, 2)
+		colors = np.maximum(colors/(np.amax(colors, axis = (0,1))+0.001),0)
+		axarr[i].imshow(colors)
+		if name!=None:
+			axarr[i].set_title(name[i])
+	plt.show()
 
 def animEnergy(producer, herbivore, carnivore,maximums=None):
     
