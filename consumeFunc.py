@@ -56,42 +56,60 @@ def consume(epreyOrig, epredOrig, porganisms, grid, dt):
 '''
 
 def consume(ePreyOrig,ePredOrig, pOrganisms,grid,dt):
-	
-	graphics.drawEnergy(ePreyOrig[:,:,0], ePredOrig[0,:,:,0], np.zeros(ePreyOrig[:,:,0].shape))
-	predator_contribution = np.copy(ePredOrig)
+	#print(ePreyOrig)
+
+	#graphics.drawEnergy(ePreyOrig[:,:,0], ePredOrig[0,:,:,0], np.zeros(ePreyOrig[:,:,0].shape),name="preyInit,predInit,none")
+	predator_contribution = np.zeros(ePredOrig.shape)
 	
 	#calculates max amount eaten based on predator counts
 	for i in range(ePredOrig.shape[0]):
-		predator_contribution[i]=convolveSingle(ePredOrig[i],pOrganisms[i,1],grid)
+		predator_contribution[i]=convolveSingle(ePredOrig[i],pOrganisms[i,1])
+	#print(predator_contribution)
 	predator_contribution = predator_contribution * pOrganisms[:,0]*dt
+	#print(predator_contribution)
 	predator_sum = np.sum(predator_contribution,axis=0)
+	#print(predator_sum)
 	
 	#limits the amount eaten to the amount available
-	norm_constants = np.where(np.logical_and(predator_sum<ePreyOrig, predator_sum != 0),ePreyOrig/predator_sum,1)
+	norm_constants = np.where(np.logical_and(predator_sum>ePreyOrig, predator_sum != 0),ePreyOrig/predator_sum,1)
 
+	#graphics.drawEnergy(predator_sum[:,:,0],ePreyOrig[:,:,0],norm_constants[:,:,0])
+
+	#graphics.drawEnergy(norm_constants[:,:,0], predator_sum[:,:,0], np.zeros(ePreyOrig[:,:,0].shape),name="norm constants, predator sums, none")
+	
 	eaten = np.zeros((ePredOrig.shape))
 	for i in range(eaten.shape[0]):
-		eaten[i]=convolveSingle(norm_constants,pOrganisms[i,1],grid)
+		eaten[i]=convolveSingle(norm_constants,pOrganisms[i,1])
 	#print(norm_constants)
-	norm_constants[1:]=np.minimum(norm_constants[1:],norm_constants[0])
+	norm_constants[:,:,1]=np.minimum(norm_constants[:,:,1],norm_constants[:,:,0])
 
-	eaten = eaten * ePredOrig*dt*pOrganisms[:,0]
+	eaten = eaten * ePredOrig * dt * pOrganisms[:,0]
 	eaten = np.swapaxes(eaten, 1, 3)
 	eat = eaten[:,0]
 	pollute = eaten[:,1]
 	prey_reduction = -predator_sum*norm_constants
+	print(np.sum(prey_reduction))
+	print(np.sum(eat))
 	prey_reduction = np.swapaxes(prey_reduction, 0, 2)
 #	prey_survived = ePreyOrig - prey_reduction
 #	print(prey_survived)
 	pollute = pollute*pOrganisms[:,3]
 	#print(eat)
-	eaten = eat*pOrganisms[:,2]
-	graphics.drawEnergy(norm_constants[:,:,0], predator_sum[:,:,0], np.zeros(ePreyOrig[:,:,0].shape))
+	predator_energy_gain = eat*pOrganisms[:,2]
+
+	#graphics.drawEnergy(eaten[0],-prey_reduction[0],np.zeros(eaten[0].shape),name="Predator energy, prey killed, none")
+	graphics.drawDebug(np.array(
+		[[ePreyOrig[:,:,0],ePredOrig[0,:,:,0],np.zeros(ePreyOrig[:,:,0].shape)],
+		[norm_constants[:,:,0],predator_sum[:,:,0],np.zeros(ePreyOrig[:,:,0].shape)],
+		[predator_energy_gain[0],-prey_reduction[0],np.zeros(predator_energy_gain[0].shape)],
+		[ePredOrig[0,:,:,0]+predator_energy_gain[0],ePreyOrig[:,:,0]+prey_reduction[0],np.zeros(ePredOrig[0,:,:,0].shape)]]),
+		name=["preyInit,predInit","norm constants, predator sums","predator energy, prey killed","final predators, final prey"])
+
 #	final_predator_energies = ePredOrig + eaten
 #	print(final_predator_energies)
 #	return prey_survived, final_predator_energies
 	#print(eaten)
-	return prey_reduction[0], prey_reduction[1], eaten, pollute
+	return prey_reduction[0], prey_reduction[1], predator_energy_gain, pollute
 
 
 '''
@@ -123,7 +141,7 @@ def consume(epPreyOrig,epPredOrig, pOrganisms,grid,dt):
 #	return prey_survived, final_predator_energies
 	return prey_reduction, eaten
 '''
-def convolveSingle(prop,radius,grid):
+def convolveSingle(prop,radius):
 	circle = circ.gener(radius)
 	convolution = np.zeros(prop.shape)
 	for i in range(prop.shape[0]):
