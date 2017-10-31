@@ -109,7 +109,7 @@ def iter_model(organisms, energies, pollutions, plant_ambient, dt, grid, efficie
 	for i in range(len(organisms)):
 		metDeltas.append(metabolism(energies[i], organisms[i], dt))
 	
-	
+	#graphics.drawEnergy(energies[0]+diffusDeltas[0]+metDeltas[0], energies[1]+diffusDeltas[1]+metDeltas[1], energies[2]+diffusDeltas[2]+metDeltas[2]) 	
 	
 	#print(plantAdd[0])	
 	energies[0] = energies[0] + plantAdd[0] + plantRemE + diffusDeltas[0] + metDeltas[0]

@@ -28,7 +28,7 @@ def animEnergy(producer, herbivore, carnivore,maximums=None):
     #plt.show()
     for i in range(colors.shape[0]):
         plt.imshow(colors[i])
-        print(str(i)+"\r")
+        #print(str(i)+"\r")
         name="img%.2d"%(i)
         plt.savefig(name)
         plt.clf()
