@@ -3,7 +3,7 @@ import classes
 import random
 import graphics
 import numpy as np
-def start(organism):
+def start():
     out=[]
     total=np.zeros((100,100))
     for i in range(10):
@@ -16,7 +16,7 @@ def start(organism):
     return total
 
 def setup(orgs):
-    listy=[start(i) for i in orgs]
+    listy=[start() for i in orgs]
     return tuple(listy)
 
 #hello=setup()

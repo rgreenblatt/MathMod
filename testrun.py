@@ -10,20 +10,23 @@ energyByTimeC = []
 
 
 grid = 100
-dt = 2
+dt = .5
 tFin = 100
 plant_ambient = .2
 efficiency = .8
 pTransfer = .6
 
 
-plant=classes.Organism(0, .9, .05, .5, 2, "plant", np.array([0]), True)
-fish=classes.Organism(1, .9, .2, .2, 10, "fish", np.array([1]), False)
-osprey=classes.Organism(2, .2, .4, .2, 50, "osprey", np.array([]), False)
+plant=classes.Organism(0, .9, .05, .5, 2, "plant", np.array([1]), True)
+fish=classes.Organism(1, 1, .4, .3, 10, "fish", np.array([2]), False)
+osprey=classes.Organism(2, .0, .4, .3, 20, "osprey", np.array([]), False)
 
 organisms = np.array([plant, fish, osprey])
 
 generate = gen.setup(organisms)
+
+
+pEnviron = gen.start()
 
 pplant=np.full((grid,grid),0.0)
 pfish=np.full((grid,grid),0.0)

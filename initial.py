@@ -65,21 +65,30 @@ def iter_model(organisms, energies, pollutions, dt, grid, efficiency, pTransfer,
 	
 	epambient = reformatPandE(np.full((grid,grid), ambientEnergy), np.zeros((grid, grid)))
 	producers = []
-	change = np.zeros((organisms.shape[0], 2, grid, grid))
+
 	for i in range(organisms.shape[0]):
+		
+		change = np.zeros((organisms.shape[0], 2, grid, grid))
 		#predation on this organism
 		preds = np.zeros((organisms[i].consumed.shape[0], grid, grid, 2))
 		predProps = np.zeros((organisms[i].consumed.shape[0], 4))
+		
 		for j in range(organisms[i].consumed.shape[0]):
 			index =  organisms[i].consumed[j]
 			preds[j] = reformatPandE(energies[index], pollutions[index])		
 			predProps[j] = np.array([organisms[index].predation,organisms[index].maxdist, efficiency, pTransfer]) 
+		
+		#print(organisms[i].consumed.shape[0])
 		if(organisms[i].consumed.shape[0] !=0):
 			eatenRemE, eatenRemP, consumeAddE, consumeAddP = consume.consume(reformatPandE(energies[i], pollutions[i]), preds, predProps, grid, dt)
-		
+		else:
+			eatenRemE = np.zeros((grid, grid))
+			eatenRemP = np.zeros((grid, grid))
+			consumeAddE = np.zeros((grid, grid))
+			consumeAddP = np.zeros((grid, grid))
 		#debug
 		
-
+		
 		#giving predators energy and pollution
 		for j in range(organisms[i].consumed.shape[0]):
 			index =  organisms[i].consumed[j]
@@ -90,16 +99,20 @@ def iter_model(organisms, energies, pollutions, dt, grid, efficiency, pTransfer,
 		change[i][0] += eatenRemE
 		change[i][1] += eatenRemP	
 		
-		energies[i] += change[i][0]
-		pollutions[i] += change[i][1]
+		#graphics.drawEnergy(np.zeros(change[2][0].shape), -change[2][0], np.zeros(change[i][0].shape))
+		for j in range(energies.shape[0]):
+			energies[j] += change[j][0]
+			pollutions[j] += change[j][1]
 
+		change = np.zeros((organisms.shape[0], 2, grid, grid))
+		
 		#TODO: Figure out pollution with below 2 functions
 		diffus = diffusion(organisms[i].diffusion, energies[i], dt)
 		met = metabolism(energies[i], organisms[i], dt)
 			
-		graphics.drawEnergy(consumeAddE[0], np.zeros(consumeAddE[0].shape), np.zeros(consumeAddE[0].shape))
+		#graphics.drawEnergy(consumeAddE[0], np.zeros(consumeAddE[0].shape), np.zeros(consumeAddE[0].shape))
 
-		graphics.drawEnergy(np.zeros(eatenRemE.shape), -eatenRemE, np.zeros(eatenRemE.shape))
+		#graphics.drawEnergy(np.zeros(eatenRemE.shape), -eatenRemE, np.zeros(eatenRemE.shape))
 
 		#TODO
 		change[i][0] += diffus+met
