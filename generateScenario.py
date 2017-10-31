@@ -11,12 +11,11 @@ def start(organism):
     for point in out:
         total[point[0]][point[1]]=100
     for i in range(3):
-        total=total+initial.diffusion(organism,total,initial.dt)
+        total=total+initial.diffusion(.9,total,1)
         #print(total)
     return total
 
-def setup():
-    orgs=[classes.Organism(k) for k in range(3)]
+def setup(orgs):
     listy=[start(i) for i in orgs]
     return tuple(listy)
 
