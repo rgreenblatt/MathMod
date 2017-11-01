@@ -82,7 +82,7 @@ def consume(ePreyOrig,ePredOrig, pOrganisms,grid,dt):
 		eaten[i]=convolveSingle(norm_constants,pOrganisms[i,1])
 	#print(norm_constants)
 
-	eaten = eaten * ePredOrig * dt * pOrganisms[:,0]
+	eaten = eaten * ePredOrig * pOrganisms[:,0]
 	eaten = np.swapaxes(eaten, 1, 3)
 	eat = eaten[:,0]
 	pollute = eaten[:,1]

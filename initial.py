@@ -6,7 +6,7 @@ import consumeFunc as consume
 import graphics
 from scipy import signal
 import circleGener as circ
-
+import pollutionFunc as pollute
 
 def metabolism(energies,organism,dt):
     return -energies*organism.metrate*dt
@@ -61,7 +61,7 @@ def reformatPandE(energy, pollution):
 
 #below function is under heavy development, should change substantially
 	
-def iter_model(organisms, energies, pollutions, dt, grid, efficiency, pTransfer, ambientEnergy):
+def iter_model(organisms, energies, pollutions, dt, grid, efficiency, pTransfer, ambientEnergy, ambient_pollution, absorbtionRate):
 	
 	epambient = reformatPandE(np.full((grid,grid), ambientEnergy), np.zeros((grid, grid)))
 	producers = []
@@ -93,11 +93,11 @@ def iter_model(organisms, energies, pollutions, dt, grid, efficiency, pTransfer,
 		for j in range(organisms[i].consumed.shape[0]):
 			index =  organisms[i].consumed[j]
 			
-			change[index][0]+=consumeAddE[j]
-			change[index][1]+= consumeAddP[j]
+			change[index][0]+=consumeAddE[j]*dt
+			change[index][1]+= consumeAddP[j]*dt
 		
-		change[i][0] += eatenRemE
-		change[i][1] += eatenRemP	
+		change[i][0] += eatenRemE*dt
+		change[i][1] += eatenRemP*dt	
 		
 		#graphics.drawEnergy(np.zeros(change[2][0].shape), -change[2][0], np.zeros(change[i][0].shape))
 		for j in range(energies.shape[0]):
@@ -108,8 +108,10 @@ def iter_model(organisms, energies, pollutions, dt, grid, efficiency, pTransfer,
 		
 		#TODO: Figure out pollution with below 2 functions
 		diffus = diffusion(organisms[i].diffusion, energies[i], dt)
+		diffus = diffusion(organisms[i].diffusion, pollutions[i], dt)
 		met = metabolism(energies[i], organisms[i], dt)
-			
+		polluteAbsorb = pollute.envirPoll(ambient_pollution, energies[i], pollutions[i], absorbtionRate, dt)
+		
 		#graphics.drawEnergy(consumeAddE[0], np.zeros(consumeAddE[0].shape), np.zeros(consumeAddE[0].shape))
 
 		#graphics.drawEnergy(np.zeros(eatenRemE.shape), -eatenRemE, np.zeros(eatenRemE.shape))
@@ -134,7 +136,7 @@ def iter_model(organisms, energies, pollutions, dt, grid, efficiency, pTransfer,
 	for j in range(len(producers)):
 		index = producers[j]
 		#TODO
-		change[index][0] += producerAdd[j]
+		change[index][0] += producerAdd[j]*dt
 	#graphics.drawDebug(np.array([change[0][0], change[1][0], change[2][0]], np.array(["plant", "fish", "osprey"])))
  	#add energies and pollutions
 	for i in range(energies.shape[0]):
