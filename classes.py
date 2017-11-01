@@ -1,6 +1,6 @@
 
 class Organism():
-	def __init__(self, identification, pred, diffus, metabolic, maxdists, label, consume, ambientEnergyUse):
+	def __init__(self, identification, pred, diffus, metabolic, maxdists, label, consume, ambientEnergyUse, lDose):
 		#Unique label
 		self.ID = identification
 		self.name = label
@@ -10,6 +10,7 @@ class Organism():
 		self.maxdist=maxdists
 		#Which IDs an organism consumes
 		self.consumed = consume
+		self.ld50 = lDose
 		#True if it consumes ambient energy
 		self.ambient= ambientEnergyUse
 	def __str__(self):

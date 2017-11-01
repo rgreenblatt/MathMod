@@ -64,7 +64,7 @@ def consume(ePreyOrig,ePredOrig, pOrganisms,grid,dt):
 	for i in range(ePredOrig.shape[0]):
 		predator_contribution[i]=convolveSingle(ePredOrig[i],pOrganisms[i,1])
 	#print(predator_contribution)
-	predator_contribution = predator_contribution * pOrganisms[:,0]*dt
+	predator_contribution = predator_contribution * pOrganisms[:,0]
 	#print(predator_contribution)
 	predator_sum = np.sum(predator_contribution,axis=0)
 	#print(predator_sum)

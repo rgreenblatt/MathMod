@@ -7,6 +7,7 @@ import graphics
 from scipy import signal
 import circleGener as circ
 import pollutionFunc as pollute
+import pollutant
 
 def metabolism(energies,organism,dt):
     return -energies*organism.metrate*dt
@@ -40,7 +41,7 @@ def neighfind(i,k,grid):
 def diffusion(diffus, energies, dt):
     #kernel = [[1,1,1],[1,-8,1],[1,1,1]]
     kernel = circ.gener(8)
-    diffused = diffus*energies*dt
+    diffused = diffus*energies
     norm_diffused = diffused/np.sum(kernel)
     convolve = signal.convolve2d(norm_diffused,kernel,boundary='wrap',mode='same')-diffused
     return convolve
@@ -81,12 +82,13 @@ def iter_model(organisms, energies, pollutions, dt, grid, efficiency, pTransfer,
 		#print(organisms[i].consumed.shape[0])
 		if(organisms[i].consumed.shape[0] !=0):
 			eatenRemE, eatenRemP, consumeAddE, consumeAddP = consume.consume(reformatPandE(energies[i], pollutions[i]), preds, predProps, grid, dt)
+			#graphics.drawEnergy(consumeAddP[0], np.zeros((grid, grid)), np.zeros((grid, grid)))
 		else:
 			eatenRemE = np.zeros((grid, grid))
 			eatenRemP = np.zeros((grid, grid))
 			consumeAddE = np.zeros((grid, grid))
 			consumeAddP = np.zeros((grid, grid))
-		#debug
+			
 		
 		
 		#giving predators energy and pollution
@@ -108,8 +110,9 @@ def iter_model(organisms, energies, pollutions, dt, grid, efficiency, pTransfer,
 		
 		#TODO: Figure out pollution with below 2 functions
 		diffus = diffusion(organisms[i].diffusion, energies[i], dt)
-		diffus = diffusion(organisms[i].diffusion, pollutions[i], dt)
+		diffusP = diffusion(organisms[i].diffusion, pollutions[i], dt)
 		met = metabolism(energies[i], organisms[i], dt)
+		#metP = metabolism(pollutions, organisms[i], dt)
 		polluteAbsorb = pollute.envirPoll(ambient_pollution, energies[i], pollutions[i], absorbtionRate, dt)
 		
 		#graphics.drawEnergy(consumeAddE[0], np.zeros(consumeAddE[0].shape), np.zeros(consumeAddE[0].shape))
@@ -117,12 +120,20 @@ def iter_model(organisms, energies, pollutions, dt, grid, efficiency, pTransfer,
 		#graphics.drawEnergy(np.zeros(eatenRemE.shape), -eatenRemE, np.zeros(eatenRemE.shape))
 
 		#TODO
-		change[i][0] += diffus+met
-		#change[i][1] += 
+		pollutions[i]+=diffusP*dt +polluteAbsorb#+met
+		energies[i]+= diffus*dt+met
+
+		kill, remP = pollutant.pollutApply(energies[i], pollutions[i], organisms[i].ld50, dt)
 		
+		energies[i]+=kill
+		pollutions[i]+=remP
 		if(organisms[i].ambient):
 			producers.append(i)
+
+		
 	#handle multiple producers
+	
+	change = np.zeros((organisms.shape[0], 2, grid, grid))
 	prods = np.zeros((len(producers), grid, grid, 2))
 	prodProps = np.zeros((len(producers), 4))
 
